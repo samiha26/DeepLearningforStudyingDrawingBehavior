@@ -1,0 +1,4 @@
+dfsdb/model/
+gwa/
+__pycache__/
+*.h5
