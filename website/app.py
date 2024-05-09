@@ -156,3 +156,8 @@ def result_person():
 def result_tree():
     result = results.get_tree_result()
     return render_template('result-tree.html', result_item = "Tree", result = result)
+
+@app.route('/result-overall.html')
+def result_overall():
+    result = results.overall_result()
+    return render_template('result-overall.html', result_item = "Overall", result = result)

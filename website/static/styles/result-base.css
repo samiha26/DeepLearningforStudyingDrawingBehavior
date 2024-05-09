@@ -27,7 +27,11 @@ body {
     text-align: center;
     color: #FA793F;
 }
-
+.container h5{
+    font-size: 1.2rem;
+    text-align: justify;
+    color: #ed7138;
+}
 .result-box-container {
     margin-top: 10px;
     display: flex;
@@ -41,7 +45,7 @@ body {
     border-radius: 10px; /* Rounded corners */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Shadow for elevated look */
     text-align: center;
-    width: auto;
+    width: 600px;
     height: 20rem;
     display: flex;
     flex-direction: column;

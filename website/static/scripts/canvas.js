@@ -134,6 +134,8 @@ canvas.height = canvasContainer.clientHeight;
 canvas.width = canvasContainer.clientWidth;
 
 const ctx = canvas.getContext("2d");
+ctx.fillStyle = "white";
+ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 let prevX = null;
 let prevY = null;

@@ -12,7 +12,13 @@
     <div class="row result-box-container">
         <div class="result-box">
             <h3><strong>Your drawing of a {{ result_item }} shows signs of:</strong></h3>
-            <h4><strong>{{ result }}</strong></h4>
+            <h4>
+                {% for item in result[0] %}
+                    <strong>{{ item }}</strong>
+                    {% if not loop.last %} / {% endif %}
+                {% endfor %}
+            </h4>
+            <h5><strong>{{ result[1] }}</strong></h5>
         </div>
     </div>
     <div class="row justify-content-center">
