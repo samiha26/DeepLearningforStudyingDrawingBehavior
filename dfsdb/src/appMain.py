@@ -20,7 +20,7 @@ from model_loaders import house_loader, tree_loader, person_loader
 Main application
 """
 
-# Initialize empty window that will hold the results
+# Initialize empty window that will hold the result s
 res_window = None
 
 
@@ -198,7 +198,10 @@ class draw_screen(QtWidgets.QMainWindow):
         self.res[2] = Counter(personPredict).most_common()[0][0]
 
         # Debug
-        # print(self.res)
+        print("housePredict =", housePredict)
+        print("treePredict =", treePredict)
+        print("personPredict =", personPredict)
+        print("self.res =",self.res)
 
     def countdown(self):
         """

@@ -40,7 +40,7 @@ class Results:
             "Feeling comfortable with yourself is a great deal! Socializing is the perfect way to create "
             "memories, meet new people and gain experience. Keep working towards your goals and always take "
             "care of yourself. "
-            ],
+            ] ,
             [
             "Feeling down and demotivated happens to everyone, especially if you are away from people that make "
             "you feel safe and happy. It is important to allow yourself time and to not give up. A tired mind "
@@ -70,11 +70,21 @@ class Results:
         ]
         
     def overall_result(self):
-        
-        return "meow"
-        
+        # Get the results for each drawing type
+        house_result, _ = self.get_house_result()
+        tree_result, _ = self.get_tree_result()
+        person_result, _ = self.get_person_result()
+
+        # Aggregate the results
+        all_results = [house_result, tree_result, person_result]
+
+        # Determine the most common outcome
+        overall_result = Counter(all_results).most_common(1)[0][0]
+
         # Debug
-        # print(self.res)
+        print("self.res =", self.res)
+        
+        return overall_result
     
     def get_house_result(self):
         
@@ -87,6 +97,8 @@ class Results:
         # Find the most commonly predicted label for each of the images and store it
         self.res[0] = Counter(housePredict).most_common()[0][0]
         
+        print("housePredict =", housePredict)
+        print("self.res =", self.res)
         return self.tags[0][self.res[0]], self.descriptions[0][self.res[0]]
     
     def get_tree_result(self):
@@ -100,6 +112,8 @@ class Results:
         # Find the most commonly predicted label for each of the images and store it
         self.res[1] = Counter(treePredict).most_common()[0][0]
         
+        print("treePredict =", treePredict)
+        print("self.res =", self.res)
         return self.tags[1][self.res[1]], self.descriptions[1][self.res[1]]
     
     def get_person_result(self):
@@ -113,4 +127,6 @@ class Results:
         # Find the most commonly predicted label for each of the images and store it
         self.res[2] = Counter(personPredict).most_common()[0][0]
         
+        print("personPredict =", personPredict)
+        print("self.res =", self.res)
         return self.tags[2][self.res[2]], self.descriptions[2][self.res[2]]
