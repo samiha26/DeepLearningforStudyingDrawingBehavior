@@ -1,0 +1,59 @@
+body {
+    background-image: url('../images/draw-desc-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.draw-desc-content {
+    border-radius: 1rem;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5); 
+    margin-bottom: 20px; 
+    background-color: rgba(255, 255, 255, 0.5); 
+    backdrop-filter: blur(2px); 
+    max-width: 80%; 
+}
+
+.draw-desc-content h2 {
+    font-size: 1rem; 
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: justify;
+    padding-left: 20px; 
+}
+
+.draw-desc-content p {
+    font-size: 0.8rem; 
+    margin-top: 10px;
+    margin-bottom: 10px;
+    text-align: justify;
+    padding-left: 20px; 
+    padding-right: 20px; 
+}
+
+.draw-desc-content ol {
+    margin-top: 0; 
+}
+
+.draw-desc-content ol li {
+    font-size: 0.8rem; 
+    text-align: justify;
+    padding-left: 20px; 
+    padding-right: 20px;
+}
+
+.draw-desc-content strong {
+    font-weight: bold; 
+}
+.draw-desc-heading h1 {
+    font-size: 2.3rem; 
+    font-weight: bold;
+    margin-bottom: 30px; 
+}
+
+.draw-desc-heading p {
+    font-size: 0.8rem; 
+    font-weight: bold;
+    margin-bottom: 50px; 
+}

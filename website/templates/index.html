@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Homepage{% endblock %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/index.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="container position-absolute top-50 translate-middle" style="max-width: 40%; left: 30%;">
+        <h1>Unlock the <br>Secrets of Your <br>Mind Through <br>Art!</h1>
+        <h4>Join us in this unique exploration of drawing behavior and discover insights<br> into your personality.</h4>
+        <a href="/about.html">
+            <button type="button" class="btn btn-success rounded-pill">Learn more</button>
+        </a>
+    </div>
+</div>
+{% endblock %}

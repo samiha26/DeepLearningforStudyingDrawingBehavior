@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+<title>{% block title %}Draw{% endblock %}</title>
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/draw-desc.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container position-absolute top-50 start-50 translate-middle">
+    <div class="row">
+        <div class="col">
+            <div class="draw-desc-content p-1 mb-3">
+                <h2><strong>How It Works:</strong></h2>
+                <ol>
+                    <li>Draw Freely: House, Tree, Person - let your imagination flow. There's no right or wrong way; it's all about your unique perspective.</li>
+                    <li>Submit Your Art: Share your drawings with us. It's easy—just a few clicks, and you're on your way to contributing to something extraordinary.</li>
+                    <li>Explore Insights: Receive insights into your personality traits based on your drawings. It's like seeing yourself through a new lens.</li>
+                </ol>
+            </div>
+            <div class="draw-desc-content p-1 mt-3">
+                <p>
+                    <strong>Live Draw:</strong> Dive in and start drawing on our canvas! Unleash your creativity and let your instincts guide you. No need to be perfect. it's all about you.
+                </p>
+                <p>
+                    <strong>Upload Image:</strong> DID YOU DRAW ON PAPER? Share it with us! Take a clear photo of your artwork and upload it here. We'll analyze it just like a live drawing.
+                </p>
+            </div>
+        </div>
+        <div class="col draw-desc-heading">
+            <h1>Unlock the Secrets <br>of Your Mind Through <br>Art!</h1>
+            <p>Your art matters, and so do you. Join us in this exciting venture of <br>creativity, exploration, and self-discovery. Ready to draw your personality?</p>
+            <p>
+                <a href="/draw-house.html" class="pr-1">
+                    <button type="button" class="btn btn-success rounded-pill">LET'S DRAW LIVE</button>
+                </a>
+                <span class="p-1">OR</span>
+                <a href="/upload.html" class="p-1">
+                    <button type="button" class="btn btn-success rounded-pill">UPLOAD IMAGE</button>
+                </a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

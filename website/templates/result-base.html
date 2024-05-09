@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}House Results{% endblock title %}
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/result-base.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h2><strong>Results</strong></h2>
+    </div>
+    <div class="row result-box-container">
+        <div class="result-box">
+            <h3><strong>Your drawing of a {{ result_item }} shows signs of:</strong></h3>
+            <h4><strong>{{ result }}</strong></h4>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <button type="button" class="btn btn-primary" id="next-btn">Next</button>
+    </div>
+</div>
+<script src="{{ url_for('static',filename='scripts/result.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,13 @@
+PS C:\> Set-Location -Path D:\
+PS D:\> cd UM\"year 3 sem 1+2"\FYP\code\DeepLearningforStudyingDrawingBehavior
+PS D:\UM\year 3 sem 1+2\FYP\code\DeepLearningforStudyingDrawingBehavior> python -m venv webenv
+PS D:\UM\year 3 sem 1+2\FYP\code\DeepLearningforStudyingDrawingBehavior> ./webenv/scripts/activate
+(webenv) PS D:\UM\year 3 sem 1+2\FYP\code\DeepLearningforStudyingDrawingBehavior> cd website
+(webenv) PS D:\UM\year 3 sem 1+2\FYP\code\DeepLearningforStudyingDrawingBehavior\website> flask run --debug
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:5000
+Press CTRL+C to quit
+ * Restarting with watchdog (windowsapi)
+ * Debugger is active!
+ * Debugger PIN: 109-052-021

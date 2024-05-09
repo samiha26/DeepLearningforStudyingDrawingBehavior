@@ -1,0 +1,17 @@
+.navbar {
+    background-color: transparent !important;
+}
+
+.navbar .btn{
+    border-radius: 20px;
+    font-weight:500;
+}
+
+.navbar-text {
+    color: black;
+    font-weight: 500;
+}
+
+.nav-item {
+    margin: 0 1rem;
+}

@@ -1,0 +1,69 @@
+body {
+    background-image: url('../images/result-base-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh; 
+}
+
+.container h2{
+    font-size: 2rem;
+    text-align: center;
+}
+.container h3{
+    font-size: 1.5rem;
+    text-align: center;
+}
+.container h4{
+    font-size: 1.5rem;
+    text-align: center;
+    color: #FA793F;
+}
+
+.result-box-container {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.result-box {
+    background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+    padding: 20px; /* Adjust as needed */
+    border-radius: 10px; /* Rounded corners */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); /* Shadow for elevated look */
+    text-align: center;
+    width: auto;
+    height: 20rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+
+.btn#next-btn {
+    margin-top: 10px;
+    border-radius: 20px; /* Rounded corners */
+    background-color: #28a745; /* Green color for the button */
+    color: white; /* White text color */
+    padding: 10px 20px; /* Adjust padding as needed */
+    font-size: 1rem; /* Font size */
+    font-weight: 500; /* Bold font weight */
+    border: none; /* No border */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.btn:hover#next-btn {
+    background-color: #19692c; /* Darker green color on hover */
+}

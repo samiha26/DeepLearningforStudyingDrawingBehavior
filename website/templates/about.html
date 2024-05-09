@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+<title>{% block title %}About{% endblock %}</title>
+{% block head %}
+{{ super() }}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='styles/about.css') }}">
+{% endblock %}
+{% block content %}
+<div class="container position-absolute top-50 start-50 translate-middle">
+    <div class="row">
+        <div class="col">
+            <h2>About Us</h2>
+            <p>Ever wondered if your doodles could reveal more than just boredom? That's the magic of <br>the House-Tree-Person (HTP) test!It's like a drawing quiz that tells psychologists a lot about you.</p>
+        </div>
+    </div>
+    <div class="row container-fluid justify-content-between">
+        <div class="col ab-content p-1">
+            <h4><strong>What is House-Tree-Person (HTP) Test?</strong></h4>
+            <p>The House-Tree-Person (HTP) test stands as a time-honored projective psychological assessment tool. Developed to delve into the depths of human cognition, this unique test involves the drawing of three simple yet profound elements: a house, a tree, and a person. Each stroke, line, and nuance in these drawings becomes a window into the complexities of an individual's mind. Psychologists have long used the HTP test to unearth subconscious thoughts, emotions, and traumas.</p>
+        </div>
+        <div class="col ab-content p-1">
+            <h4><strong>What Deep Learning for Studying Drawing Behavior is All About</strong></h4>
+            <ul style="list-style-type: circle;">
+                <li><strong>Quick Insights:</strong> We're using deep learning to decode your drawings super fast. No waiting around!</li>
+                <li><strong>Discover Yourself:</strong> Your drawings can tell us things about you—like a personality quiz, but with sketches.</li>
+                <li><strong>Contribute to Science:</strong> By joining, you're not just doodling; you're helping science connect the dots between art and feelings.</li>
+                <li><strong>Easy and Fun:</strong> Our drawing tool is a breeze to use. You don't need to be the next Picasso—just draw, and let the tech work its magic.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

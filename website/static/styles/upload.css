@@ -1,0 +1,77 @@
+body {
+    background-image: url('../images/draw-desc-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100vh;
+}
+
+.upload-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.upload-content {
+    margin-top: 20px;
+    border-radius: 1rem;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+    background-color: rgba(255, 255, 255, 0.5); 
+    backdrop-filter: blur(2px); 
+    align-items: center;
+    justify-content: center;
+    height: 25rem;
+    width: 60%;
+}
+
+.upload-content h1{
+    font-size: 2.2rem;
+    text-align: center;
+}
+.button-names {
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+.button-names span {
+    width: max-content;
+}
+
+.buttons {
+    flex-wrap: nowrap;
+    justify-content: space-around;
+}
+
+.buttons input{
+    width: max-content;
+}
+
+.next-button {
+    margin-top: 20px;
+    position: relative;
+}
+
+.next-button button{
+    background-color: #FA793F;
+    border: none;
+    font-size: 1rem;
+}
+.next-button button:hover {
+    background-color: #FF681F; 
+}
+
+.btn-success {
+    border-radius: 20px; 
+    background-color: #28a745; 
+    border: none; 
+    width: auto;
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
