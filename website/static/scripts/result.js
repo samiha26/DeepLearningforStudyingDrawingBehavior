@@ -5,6 +5,8 @@ nextBtn.addEventListener("click", () => {
         window.location.href = "/result-tree.html";
     else if (fileName == "tree")
         window.location.href = "/result-person.html";
+    else if (fileName == "person")
+        window.location.href = "/result-overall.html";
     else
         window.location.href = "/index.html";
 });

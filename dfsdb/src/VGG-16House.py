@@ -1,53 +1,70 @@
 import os
 import pandas as pd
 import numpy as np
+import logging
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import ModelCheckpoint
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+from tensorflow.keras.preprocessing import image
 
-# Step 1: Load images and labels
-image_dir = '../images'
-csv_file = '../data/houseData.csv'
+# Setting up log file
+logging.basicConfig(filename='error.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s: %(message)s')
 
-# Load labels from CSV
+# Number to class labels mapping for house image classifier
 class_dict = {0: 'stress', 1: 'introvert', 2: 'extrovert'}
-labels_df = pd.read_csv(csv_file)
 
-# Assuming 'id' column contains the image numbers and 'class' column contains the labels
-image_ids = labels_df['id']
-class_labels = labels_df['class']
+# Loading the data from the .csv file
+try:
+    labels_df = pd.read_csv('../data/houseData.csv')
+except FileNotFoundError as e:
+    logging.error(f"File not found error: {e}")
+    exit(1)
+except Exception as e:
+    logging.error(f"An unexpected error occurred while loading data: {e}")
+    exit(1)
 
-# Create a list of labels using class_dict
-labels = np.array([class_dict[label] for label in class_labels])
+# Convert 'id' column to strings and append '.png' to match the image filenames
+labels_df['id'] = labels_df['id'].astype(str) + '.png'
+# Convert 'class' column to strings
+labels_df['class'] = labels_df['class'].astype(str)
 
-# Step 2: Preprocess the images
-# You can use ImageDataGenerator for data augmentation and preprocessing
-datagen = ImageDataGenerator(rescale=1./255, validation_split=0.2)  # Rescale pixel values and split data into train/validation
+# Prepare the data generator with augmentation and preprocessing
+datagen = ImageDataGenerator(
+    rescale=1./255,
+    validation_split=0.2,  # Split data into training and validation sets
+    horizontal_flip=True,
+    zoom_range=0.2,
+    rotation_range=20
+)
 
 # Load and preprocess images from directory
-train_generator = datagen.flow_from_directory(
-    image_dir,
-    target_size=(224, 224),  # VGG16 input size
+train_generator = datagen.flow_from_dataframe(
+    dataframe=labels_df,
+    directory='../images/house/',
+    x_col='id',
+    y_col='class',
+    target_size=(224, 224),
     batch_size=32,
     class_mode='categorical',
-    subset='training',
-    classes = ['house']
+    subset='training'
 )
 
-validation_generator = datagen.flow_from_directory(
-    image_dir,
-    target_size=(224, 224),  # VGG16 input size
+validation_generator = datagen.flow_from_dataframe(
+    dataframe=labels_df,
+    directory='../images/house/',
+    x_col='id',
+    y_col='class',
+    target_size=(224, 224),
     batch_size=32,
     class_mode='categorical',
-    subset='validation',
-    classes = ['house']
+    subset='validation'
 )
-# vgg16 model
 
-def create_vgg16():
+# Define the VGG-16 model
+def create_vgg16(num_classes=3):
     model = Sequential()
     
     # Block 1
@@ -81,51 +98,72 @@ def create_vgg16():
     # Fully connected layers
     model.add(Flatten())
     model.add(Dense(4096, activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Dense(4096, activation='relu'))
-    model.add(Dense(1000, activation='softmax'))  # 1000 classes for ImageNet
+    model.add(Dropout(0.5))
+    model.add(Dense(num_classes, activation='softmax'))  # Output layer for num_classes classes
     
     return model
 
-# Step 3: Define and compile the VGG16 model
-vgg16_model = create_vgg16()  
+# Create the VGG-16 model
+vgg16_model = create_vgg16(num_classes=3)
 
-# Compile the model
-vgg16_model.compile(optimizer=Adam(lr=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
+# Compile the model with the correct argument name
+vgg16_model.compile(optimizer=Adam(learning_rate=0.0001), loss='categorical_crossentropy', metrics=['accuracy'])
 
-# Step 4: Train the model
-checkpoint = ModelCheckpoint('vgg16_model.h5', monitor='val_accuracy', save_best_only=True, mode='max', verbose=1)
+# Define callbacks
+checkpoint = ModelCheckpoint('vgg16_modelHouse.keras', monitor='val_accuracy', save_best_only=True, mode='max', verbose=1)
 callbacks_list = [checkpoint]
 
+# Train the model
 history = vgg16_model.fit(
     train_generator,
     steps_per_epoch=train_generator.samples // train_generator.batch_size,
-    epochs=1,
+    epochs=10,
     validation_data=validation_generator,
     validation_steps=validation_generator.samples // validation_generator.batch_size,
     callbacks=callbacks_list
 )
 
-# Step 5: Evaluate the model
+# Evaluate the model
 loss, accuracy = vgg16_model.evaluate(validation_generator, verbose=1)
 print("Validation Accuracy: {:.2f}%".format(accuracy * 100))
 
-# Step 6: Use the trained model to classify unknown images
+# Generate classification report for the validation set
+def generate_classification_report(model, generator):
+    y_true = generator.classes
+    y_pred = model.predict(generator)
+    y_pred_classes = np.argmax(y_pred, axis=1)
+
+    report = classification_report(y_true, y_pred_classes, target_names=list(class_dict.values()))
+    print("Classification Report:")
+    print(report)
+
+generate_classification_report(vgg16_model, validation_generator)
+
 # Load the saved model
-from tensorflow.keras.models import load_model
+loaded_model = vgg16_model
 
-loaded_model = load_model('vgg16_model.h5')
+# Load and preprocess a single image
+def load_and_preprocess_image(image_path):
+    img = image.load_img(image_path, target_size=(224, 224))
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
+    img_array /= 255.  # Rescale pixel values
+    return img_array
 
-# Load and preprocess an unknown image
-from tensorflow.keras.preprocessing import image
+# Function to get predictions for a single image
+def get_prediction(model, image_array):
+    prediction = model.predict(image_array)
+    predicted_class = class_dict[np.argmax(prediction)]
+    return predicted_class
 
-img_path = '../images/house/300.png'
-img = image.load_img(img_path, target_size=(224, 224))
-img_array = image.img_to_array(img)
-img_array = np.expand_dims(img_array, axis=0)  # Add batch dimension
-img_array /= 255.  # Rescale pixel values
+# Load a fixed image
+fixed_image_path = '../images/house/300.png'
+fixed_image = load_and_preprocess_image(fixed_image_path)
 
-# Make predictions
-prediction = loaded_model.predict(img_array)
-predicted_class = class_dict[np.argmax(prediction)]
+# Get the prediction for the fixed image
+prediction = get_prediction(loaded_model, fixed_image)
 
-print("Predicted class:", predicted_class)
+# Display the prediction
+print(f'Prediction for the fixed image: {prediction}')

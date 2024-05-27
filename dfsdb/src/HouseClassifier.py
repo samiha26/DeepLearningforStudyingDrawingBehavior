@@ -4,14 +4,17 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import models, transforms
-
+import logging
 from doodleLoaderSimple import DoodleDatasetSimple
 
 '''
 Training and validation for the house image classifier
 '''
+#setting up log file
+logging.basicConfig(filename='error.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s: %(message)s')
 
-# Number to class labels mapping
+
+# Number to class labels mapping for house image classifier
 class_dict = {
     0: 'stress',
     1: 'introvert',
@@ -20,7 +23,15 @@ class_dict = {
 
 # Loading the data from the .csv file
 # First row is a header
-data = np.genfromtxt('../data/houseData.csv', dtype=int, delimiter=',', names=True)
+# Loading the data from the .csv file
+try:
+    data = np.genfromtxt('../data/houseData.csv', dtype=int, delimiter=',', names=True)
+except FileNotFoundError as e:
+    logging.error(f"File not found error: {e}")
+    exit(1)
+except Exception as e:
+    logging.error(f"An unexpected error occurred while loading data: {e}")
+    exit(1)
 
 
 def count_classes(dictClass, arr):
@@ -31,12 +42,14 @@ def count_classes(dictClass, arr):
     :param arr: The array that contains the data
     :return: The number of occurrences for each class in the given array
     """
-    unique, count = numpy.unique(arr, return_counts=True)
-    print(dict(zip(dictClass.values(), count)))
-    count = 1 / count
-    count = count / sum(count)
-    return count
-
+    try:
+        unique, count = numpy.unique(arr, return_counts=True)
+        print(dict(zip(dictClass.values(), count)))
+        count = 1 / count
+        count = count / sum(count)
+        return count
+    except Exception as e:
+        logging.error(f"An error occurred while counting classes: {e}")
 
 # Match the image IDs to the ID values in the .csv file.
 translation_dict = dict(
@@ -49,8 +62,12 @@ data_transforms = transforms.Compose([
 ])
 
 # Prepare the data by matching it to it's label and transforming it to a Tensor product.
-housedata = DoodleDatasetSimple('../images/house/', data_transforms, translation_dict)
-
+try:
+    housedata = DoodleDatasetSimple('../images/house/', data_transforms, translation_dict)
+except Exception as e:
+    logging.error(f"An error occurred while preparing data: {e}")
+    exit(1)
+    
 # 80% of the data for training.
 train_len = int(housedata.__len__() * 0.8)
 # 20% of the data for validation.
@@ -102,15 +119,18 @@ def criterion(outputs, pictures):
     :param pictures: Actual labeled images from the dataset
     :return: The sum of the cross entropy loss function.
     """
-    losses = 0
+    try:
+        losses = 0
 
-    for i, key in enumerate(outputs):
-        loss_func = nn.CrossEntropyLoss()
-        labelsTensor = pictures['class'].clone().detach()
-        losses += loss_func(outputs[key], labelsTensor.long().to(device))
+        for i, key in enumerate(outputs):
+            loss_func = nn.CrossEntropyLoss()
+            labelsTensor = pictures['class'].clone().detach()
+            losses += loss_func(outputs[key], labelsTensor.long().to(device))
 
-    return losses
-
+        return losses
+    except Exception as e:
+        logging.error(f"An error occurred while calculating the criterion: {e}")
+    
 
 def training(model, device, lr_rate, epochs, train_loader):
     """
@@ -122,45 +142,53 @@ def training(model, device, lr_rate, epochs, train_loader):
     :param train_loader: The loader that provides the labeled images in batches
     :return: An array containing the losses after each epoch
     """
-    num_epochs = epochs
-    losses = []
-    checkpoint_losses = []
+    try:
+        num_epochs = epochs
+        losses = []
+        checkpoint_losses = []
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=lr_rate)
-    n_total_steps = len(train_loader)
+        optimizer = torch.optim.Adam(model.parameters(), lr=lr_rate)
+        n_total_steps = len(train_loader)
 
-    for epoch in range(num_epochs):
-        for i, pictures in enumerate(train_loader):
-            images = pictures['image'].to(device)
+        for epoch in range(num_epochs):
+            for i, pictures in enumerate(train_loader):
+                images = pictures['image'].to(device)
 
-            output = model(images)
+                output = model(images)
 
-            loss = criterion(output, pictures)
-            losses.append(loss.item())
+                loss = criterion(output, pictures)
+                losses.append(loss.item())
 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+                optimizer.zero_grad()
+                loss.backward()
+                optimizer.step()
 
-            if (i + 1) % (int(n_total_steps / 1)) == 0:
-                checkpoint_loss = torch.tensor(losses).mean().item()
-                checkpoint_losses.append(checkpoint_loss)
-                print(f'Epoch [{epoch + 1}/{num_epochs}], Step [{i + 1}/{n_total_steps}], Loss: {checkpoint_loss:.4f}')
+                if (i + 1) % (int(n_total_steps / 1)) == 0:
+                    checkpoint_loss = torch.tensor(losses).mean().item()
+                    checkpoint_losses.append(checkpoint_loss)
+                    print(f'Epoch [{epoch + 1}/{num_epochs}], Step [{i + 1}/{n_total_steps}], Loss: {checkpoint_loss:.4f}')
 
-    # Snippet used to save the models for inferring during runtime.
-    torch.save({
-       'model_state_dict': model.state_dict(),
-       'optimizer_state_dict': optimizer.state_dict(),
-       'loss': checkpoint_losses,
-    }, '../model/house/house_model_10.tar')
-
-    return checkpoint_losses
-
+        # Snippet used to save the models for inferring during runtime.
+        try:
+            torch.save({
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': checkpoint_losses,
+            }, '../model/house/house_model_10.tar')
+        except Exception as e:
+            logging.error(f"An error occurred while saving the model: {e}")
+        return checkpoint_losses
+    except Exception as e:
+        logging.error(f"An error occurred during training: {e}")
+            
 
 # Call the method to train the model
-checkpoint_losses = training(model, device, 0.0001, 10, train_loader)
-
-
+try:
+    checkpoint_losses = training(model, device, 0.0001, 10, train_loader)
+except Exception as e:
+    logging.error(f"An error occurred during training: {e}")
+    exit(1)
+    
 def validation(model, dataloader):
     """
     Method used to validate the model after training
@@ -168,26 +196,28 @@ def validation(model, dataloader):
     :param dataloader: The loader that provides the labeled images in batches
     :return: The percentage of accuracy of the model.
     """
-    with torch.no_grad():
-        n_correct = 0
-        n_samples = 0
+    try:
+        with torch.no_grad():
+            n_correct = 0
+            n_samples = 0
 
-        for pictures in dataloader:
-            images = pictures['image'].to(device)
-            outputs = model(images)
-            labels = [pictures['class'].to(device)]
+            for pictures in dataloader:
+                images = pictures['image'].to(device)
+                outputs = model(images)
+                labels = [pictures['class'].to(device)]
 
-            for i, out in enumerate(outputs):
-                _, predicted = torch.max(outputs[out], 1)
-                n_correct += (predicted == labels[i]).sum().item()
+                for i, out in enumerate(outputs):
+                    _, predicted = torch.max(outputs[out], 1)
+                    n_correct += (predicted == labels[i]).sum().item()
 
-                if i == 0:
-                    n_samples += labels[i].size(0)
+                    if i == 0:
+                        n_samples += labels[i].size(0)
 
-    acc = 100.0 * n_correct / n_samples
-    print(str(acc) + "%")
-    return acc
-
+        acc = 100.0 * n_correct / n_samples
+        print(str(acc) + "%")
+        return acc
+    except Exception as e:
+        logging.error(f"An error occurred during validation: {e}")
 
 # Call the method to validate the model
 validation(model, test_loader)
@@ -195,18 +225,25 @@ validation(model, test_loader)
 # Extra for classification purpose
 
 # Load the trained model
-model = MultilabelClassifier(3).to(device)
-checkpoint = torch.load('../model/house/house_model_10.tar')
-model.load_state_dict(checkpoint['model_state_dict'])
+try:
+    model = MultilabelClassifier(3).to(device)
+    checkpoint = torch.load('../model/house/house_model_10.tar')
+    model.load_state_dict(checkpoint['model_state_dict'])
+except Exception as e:
+    logging.error(f"An error occurred while loading the trained model: {e}")
+    exit(1)
 
 # Create a DataLoader for your validation set
 # Adjust batch_size and other parameters as needed
 validation_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
 
 # Validate the model and print the accuracy
-validation_accuracy = validation(model, validation_loader)
-print(f'Validation Accuracy: {validation_accuracy:.2f}%')
-
+try:
+    validation_accuracy = validation(model, validation_loader)
+    print(f'Validation Accuracy: {validation_accuracy:.2f}%')
+except Exception as e:
+    logging.error(f"An error occurred during validation: {e}")
+    
 
 # Call the method to validate the model
 y_true = []

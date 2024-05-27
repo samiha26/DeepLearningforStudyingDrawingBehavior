@@ -2,6 +2,7 @@ import sys, os
 import base64
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import flash
 
 # # Get the parent directory
 # parent_dir = os.path.dirname(os.path.realpath(__file__))[:-8]
@@ -26,6 +27,7 @@ from dfsdb.src import appWeb
 UPLOAD_FOLDER = """D:\\UM\\year 3 sem 1+2\\FYP\\code\\DeepLearningforStudyingDrawingBehavior\\dfsdb\\toPredict"""
 
 app = Flask(__name__)
+app.secret_key ='jerry'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/')
@@ -77,7 +79,25 @@ def draw_tree():
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+# @app.route('/upload.html', methods=['GET', 'POST'])
+# def upload():
+#     if request.method == 'POST':
+#         # Mapping between input names and fixed filenames
+#         file_names = {
+#             'house': 'predictHouse.png',
+#             'tree': 'predictTree.png',
+#             'person': 'predictPerson.png'
+#         }
+#         for input_name, predict_filename in file_names.items():
+#             file = request.files.get(input_name)
+#             if file and allowed_file(file.filename):
+#                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], predict_filename)
+#                 file.save(file_path)
+        
+#         return redirect(url_for('result_house'))  # Redirect to the result page after upload
+#     return render_template('upload.html')
 
 @app.route('/upload.html', methods=['GET', 'POST'])
 def upload():
@@ -90,13 +110,15 @@ def upload():
         }
         for input_name, predict_filename in file_names.items():
             file = request.files.get(input_name)
-            if file and allowed_file(file.filename):
+            if file:
+                # Check if the uploaded file has an allowed extension
+                if file.filename.split('.')[-1].lower() not in ALLOWED_EXTENSIONS:
+                    flash('Error: Invalid file format. Please upload a PNG, JPG, or JPEG file.')
+                    return redirect(request.url)  # Redirect back to the upload page
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], predict_filename)
                 file.save(file_path)
-        
         return redirect(url_for('result_house'))  # Redirect to the result page after upload
     return render_template('upload.html')
-
 
 # new updated save image
 @app.route('/save_drawing', methods=['POST'])
@@ -117,14 +139,14 @@ def save_drawing():
             file_name = "predictPerson.png"
         else:
             file_name = "drawing.png"
-        
+
         # Specify the file path to save the image
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
 
         # Save the image to the specified directory
         with open(file_path, "wb") as f:
             f.write(decoded_data)
-        
+
         # Determine the next page based on the current page
         current_page = request.referrer  # Get the URL of the current page
         if file_name == "predictHouse.png":
@@ -133,7 +155,6 @@ def save_drawing():
             next_page = "/draw-person.html"
         else:
             next_page = "/result-house.html"
-
         # Construct the response with the URL of the next page
         response = {"message": "Drawing saved successfully!", "nextPage": next_page}
         return jsonify(response), 200

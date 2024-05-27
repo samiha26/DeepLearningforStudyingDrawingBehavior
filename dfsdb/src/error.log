@@ -1,0 +1,6 @@
+2024-05-26 22:37:56,810 - ERROR: An error occurred while preparing data: name 'translation_dict' is not defined
+2024-05-26 22:42:00,657 - ERROR: An error occurred during training: expected scalar type Long but found Int
+2024-05-27 18:22:21,886 - ERROR: Error in __getitem__ during image loading and transformation: list index out of range
+2024-05-27 18:47:15,342 - ERROR: Error in __getitem__ during image loading and transformation: list index out of range
+2024-05-27 18:54:27,696 - ERROR: Error in __getitem__ during image loading and transformation: list index out of range
+2024-05-27 18:54:57,313 - ERROR: Error in __getitem__ during image loading and transformation: list index out of range

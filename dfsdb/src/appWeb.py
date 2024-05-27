@@ -30,59 +30,65 @@ class Results:
                    ]
         self.descriptions = [
             [
-            "If your responsibilities are causing you stress, try organizing your tasks. Get a friend and do "
-            "something you enjoy. Work on your tasks in small intervals and remember to take time for yourself!",
+            "Your house drawing might have features such as excessive smoke, shading of the roof, and high detailing."
+            "These characteristics suggest signs of stress or anxiety, reflecting a heightened state of worry or pressure."
+            "An overactive mind and feelings of being overwhelmed might be indicated through these elements in your drawing.",
             #####################################################################################################
-            "If you're feeling uncertain with yourself take some time off and do things that make you happy. "
-            "Socializing can sometimes be taxing, dedicate some time for yourself, watch a show that you like, "
-            "reach out to people that are close to you even if you're far away!",
+            "Your house drawing might exhibit features such as the absence of a door, absence of windows, a door situated"
+            "much above the baseline, or a missing chimney. These elements suggest possible signs of low self-esteem, introversion,"
+            "or withdrawal. Such characteristics in your drawing may reflect feelings of isolation, difficulty in expressing emotions,"
+            "or a tendency to retreat inward.",
             #####################################################################################################
-            "Feeling comfortable with yourself is a great deal! Socializing is the perfect way to create "
-            "memories, meet new people and gain experience. Keep working towards your goals and always take "
-            "care of yourself. "
+            "Your house drawing might display features such as a very large door, very large roof, very large windows, or an open door. "
+            "These elements indicate possible signs of high self-esteem, extroversion, or a tendency to fantasize. Such characteristics "
+            "in your drawing may reflect confidence, openness to social interactions, or a vivid imagination."
             ] ,
             [
-            "Feeling down and demotivated happens to everyone, especially if you are away from people that make "
-            "you feel safe and happy. It is important to allow yourself time and to not give up. A tired mind "
-            "can't see clearly, allow yourself time to rest  and take things one step at a time",
+            "Your tree drawing might exhibit features such as a lack of leaves, a lack of branches, or a lack of roots. "
+            "These elements suggest possible signs of depression or low energy, reflecting a sense of emptiness or a lack of vitality. "
+            "Feelings of sadness, fatigue, or a lack of motivation might be indicated through these elements in your drawing.",
             #####################################################################################################
-            "Staying motivated is not an easy task, especially if you are faced with problems and challenges. "
-            "Devoting time to yourself is key improve your wellbeing. Expose yourself to new  experiences and "
-            "reflect on the positive aspects of your  personality.",
+            "Your tree drawing might display features such as short or no branches, and a thin and small trunk. "
+            "These elements indicate possible signs of introversion and low ego strength. Such characteristics in your "
+            "drawing may reflect a reserved nature and a lack of self-confidence or inner strength.",
             #####################################################################################################
-            "Having a clear goal in mind is key to helping yourself stay motivated even in the most dire "
-            "situations. Enjoy time with friends, expose yourself to new experiences and keep looking ahead! "
+            "Your tree drawing might have features such as a large trunk, large branches, or a large number of leaves. "
+            "These elements suggest possible signs of extroversion, ambition, or high ego strength. Such characteristics in your "
+            "drawing may reflect sociability, a drive to achieve goals, or a strong sense of self-worth."
             ],
             [
-            "Feeling down and demotivated happens to everyone, especially if you are away from people that make "
-            "you feel safe and happy. It is important to allow yourself time and to not give up. A tired mind "
-            "can't see clearly, allow yourself time to rest and take things one step at a time.",
+            "Your person drawing might exhibit features such as a lack of details, or miniature in size. "
+            "These elements suggest possible signs of depression or low energy, reflecting a sense of emptiness or a lack of vitality. "
+            "Feelings of sadness, fatigue, or a lack of motivation might be indicated through these elements in your drawing.",
             #####################################################################################################
-            "Withdrawal and/or lack of motivation and/or boredom Finding motivation is not always an easy task. "
-            "Keeping yourself on a schedule will help you deal with your responsibilities and give you a sense "
-            "of accomplishment. Expose yourself to  new experiences, discover what you enjoy the most and "
-            "always dedicate for you!",
+            "Your person drawing might display features such as being overly simplistic, lacks significant detail, or resembles a stick figure. "
+            "These elements indicate possible signs of withdrawal, lack of motivation, or boredom. Such characteristics in your "
+            "drawing may reflect a tendency to isolate oneself, a lack of interest in activities, or a sense of monotony.",
             #####################################################################################################
-            "Feeling overwhelmed happens to everyone. Dealing with pressure is not always trivial or "
-            "straightforward. It is important take breaks and spend time doing activities for your being. "
-            "Always try to keep a balance between your obligations and leisure. "
+            "Your person drawing might have features such as high details, well-defined facial features or proportional dimensions of limbs and body. "
+            "These elements suggest possible signs of anxiety, obsession, or a tendency to overthink. Such characteristics in your "
+            "drawing may reflect a heightened state of worry, a preoccupation with certain thoughts, or a tendency to ruminate."
             ]
         ]
         
     def overall_result(self):
         # Get the results for each drawing type
-        house_result, _ = self.get_house_result()
-        tree_result, _ = self.get_tree_result()
-        person_result, _ = self.get_person_result()
+        house_result, house_description = self.tags[0][self.res[0]], self.descriptions[0][self.res[0]]
+        tree_result, tree_description = self.tags[1][self.res[1]], self.descriptions[1][self.res[1]]
+        person_result, person_description = self.tags[2][self.res[2]], self.descriptions[2][self.res[2]]
 
         # Aggregate the results
-        all_results = [house_result, tree_result, person_result]
+        results_cnt = {}
+        for result in [house_result, tree_result, person_result]:
+            for r in result:
+                print("r", r)
+                results_cnt[r] = results_cnt.get(r, 0) + 1
 
         # Determine the most common outcome
-        overall_result = Counter(all_results).most_common(1)[0][0]
+        overall_result = max(results_cnt, key=results_cnt.get)
 
         # Debug
-        print("self.res =", self.res)
+        print("overall result", overall_result)
         
         return overall_result
     
