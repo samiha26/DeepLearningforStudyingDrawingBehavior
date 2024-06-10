@@ -67,16 +67,22 @@ except Exception as e:
     logging.error(f'Error preparing data: {e}')
     exit(1)
     
+# Calculate the lengths for each split
+total_len = len(persondata)
 # 80% of the data for training.
-train_len = int(persondata.__len__() * 0.8)
-# 20% of the data for validation.
-test_len = int(persondata.__len__() * 0.2 + 1)
+train_len = int(total_len * 0.8)
+# 10% of the data for validation.
+val_len = int(total_len * 0.1)
+# 10% of the data for training.
+test_len = total_len - train_len - val_len
+
 # Split the data at a random point.
-train_set, val_set = torch.utils.data.random_split(persondata, [train_len, test_len])
+train_set, val_set, test_set = torch.utils.data.random_split(persondata, [train_len, val_len, test_len])
 # Shuffle and load the labeled images in batches of 4 for training.
 train_loader = DataLoader(train_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
 # Load the labeled images in batches of 4 for validation after training the model.
-test_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
+val_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
+test_loader = DataLoader(test_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
 
 
 class MultilabelClassifier(nn.Module):
@@ -151,12 +157,9 @@ def training(model, device, lr_rate, epochs, train_loader):
         for epoch in range(num_epochs):
             for i, pictures in enumerate(train_loader):
                 images = pictures['image'].to(device)
-
                 output = model(images)
-
                 loss = criterion(output, pictures)
                 losses.append(loss.item())
-
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
@@ -172,7 +175,7 @@ def training(model, device, lr_rate, epochs, train_loader):
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
             'loss': checkpoint_losses,
-            }, '../model/person/person_model_15.tar')
+            }, '../model/person/person_model_10.tar')
         except Exception as e:
             logging.error(f'Error saving model: {e}')
         return checkpoint_losses
@@ -217,7 +220,11 @@ def validation(model, dataloader):
         logging.error(f'Error validating model: {e}')
 
 # Call the method to validate the model
-validation(model, test_loader)
+try:
+    validation_accuracy = validation(model, val_loader)
+    print(f'Validation Accuracy: {validation_accuracy:.2f}%')
+except Exception as e:
+    logging.error(f"An error occurred during validation: {e}")
 
 # Extra for classification purpose
 
@@ -226,7 +233,7 @@ model = MultilabelClassifier(3).to(device)
 checkpoint = torch.load('../model/person/person_model_10.tar')
 model.load_state_dict(checkpoint['model_state_dict'])
 
-# Create a DataLoader for your validation set
+# Create a DataLoader for the validation set
 # Adjust batch_size and other parameters as needed
 validation_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
 

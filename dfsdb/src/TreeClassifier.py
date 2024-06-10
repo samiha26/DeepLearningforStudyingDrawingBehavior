@@ -64,16 +64,24 @@ except Exception as e:
     logging.error(f"An error occurred while preparing the data: {e}")
     exit(1)
 
+# Calculate the lengths for each split
+total_len = len(treedata)
 # 80% of the data for training.
-train_len = int(treedata.__len__() * 0.8)
-# 20% of the data for validation.
-test_len = int(treedata.__len__() * 0.2 + 1)
+train_len = int(total_len * 0.8)
+# 10% of the data for validation.
+val_len = int(total_len * 0.1)
+# 10% of the data for training.
+test_len = total_len - train_len - val_len
+
 # Split the data at a random point.
-train_set, val_set = torch.utils.data.random_split(treedata, [train_len, test_len])
+train_set, val_set, test_set = torch.utils.data.random_split(treedata, [train_len, val_len, test_len])
+
+# Create data loaders
 # Shuffle and load the labeled images in batches of 4 for training.
 train_loader = DataLoader(train_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
 # Load the labeled images in batches of 4 for validation after training the model.
-test_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
+val_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
+test_loader = DataLoader(test_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
 
 
 class MultilabelClassifier(nn.Module):
@@ -89,7 +97,7 @@ class MultilabelClassifier(nn.Module):
         self.model_wo_fc = nn.Sequential(*(list(self.resnet.children())[:-1]))
 
         self.imageClass = nn.Sequential(
-            nn.Dropout(p=0.1),
+            nn.Dropout(p=0.2),
             nn.Linear(in_features=512, out_features=n_features)
         )
 
@@ -215,7 +223,7 @@ def validation(model, dataloader):
         logging.error(f"An error occurred while validating the model: {e}")
 
 # Call the method to validate the model
-validation(model, test_loader)
+validation(model, val_loader)
 
 # Extra for classification purpose
 
@@ -224,7 +232,7 @@ model = MultilabelClassifier(3).to(device)
 checkpoint = torch.load('../model/tree/tree_model_10.tar')
 model.load_state_dict(checkpoint['model_state_dict'])
 
-# Create a DataLoader for your validation set
+# Create a DataLoader for the validation set
 # Adjust batch_size and other parameters as needed
 validation_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
 

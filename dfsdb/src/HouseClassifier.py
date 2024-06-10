@@ -1,4 +1,3 @@
-import numpy
 import numpy as np
 import torch
 from torch import nn
@@ -6,13 +5,11 @@ from torch.utils.data import DataLoader
 from torchvision import models, transforms
 import logging
 from doodleLoaderSimple import DoodleDatasetSimple
-
 '''
 Training and validation for the house image classifier
 '''
-#setting up log file
-logging.basicConfig(filename='error.log', level=logging.ERROR, format='%(asctime)s - %(levelname)s: %(message)s')
-
+# Setting up log file
+logging.basicConfig(filename='error.log', level=logging.ERROR, format='%(asctime)s - %Y-%m-%d %H:%M:%S: %(message)s')
 
 # Number to class labels mapping for house image classifier
 class_dict = {
@@ -21,8 +18,6 @@ class_dict = {
     2: 'extrovert'
 }
 
-# Loading the data from the .csv file
-# First row is a header
 # Loading the data from the .csv file
 try:
     data = np.genfromtxt('../data/houseData.csv', dtype=int, delimiter=',', names=True)
@@ -33,7 +28,6 @@ except Exception as e:
     logging.error(f"An unexpected error occurred while loading data: {e}")
     exit(1)
 
-
 def count_classes(dictClass, arr):
     """
     Redundant method that counts the occurrences of each class in the dataset
@@ -43,7 +37,7 @@ def count_classes(dictClass, arr):
     :return: The number of occurrences for each class in the given array
     """
     try:
-        unique, count = numpy.unique(arr, return_counts=True)
+        unique, count = np.unique(arr, return_counts=True)
         print(dict(zip(dictClass.values(), count)))
         count = 1 / count
         count = count / sum(count)
@@ -61,24 +55,29 @@ data_transforms = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-# Prepare the data by matching it to it's label and transforming it to a Tensor product.
+# Prepare the data by matching it to its label and transforming it to a Tensor product.
 try:
     housedata = DoodleDatasetSimple('../images/house/', data_transforms, translation_dict)
 except Exception as e:
     logging.error(f"An error occurred while preparing data: {e}")
     exit(1)
     
+# Calculate the lengths for each split
+total_len = len(housedata)
 # 80% of the data for training.
-train_len = int(housedata.__len__() * 0.8)
-# 20% of the data for validation.
-test_len = int(housedata.__len__() * 0.2 + 1)
-# Split the data at a random point.
-train_set, val_set = torch.utils.data.random_split(housedata, [train_len, test_len])
-# Shuffle and load the labeled images in batches of 4 for training.
-train_loader = DataLoader(train_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
-# Load the labeled images in batches of 4 for validation after training the model.
-test_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
+train_len = int(total_len * 0.8)
+# 10% of the data for validation.
+val_len = int(total_len * 0.1)
+# 10% of the data for training.
+test_len = total_len - train_len - val_len
 
+# Split the data
+train_set, val_set, test_set = torch.utils.data.random_split(housedata, [train_len, val_len, test_len])
+
+# Create data loaders
+train_loader = DataLoader(train_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
+val_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
+test_loader = DataLoader(test_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
 
 class MultilabelClassifier(nn.Module):
     """
@@ -103,13 +102,11 @@ class MultilabelClassifier(nn.Module):
         return {
             'class': self.imageClass(x)
         }
-
-
+        
 # Set the device to use as the GPU if there is compatible hardware
 # Otherwise run the model on the cpu
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = MultilabelClassifier(3).to(device)
-
 
 def criterion(outputs, pictures):
     """
@@ -121,16 +118,13 @@ def criterion(outputs, pictures):
     """
     try:
         losses = 0
-
         for i, key in enumerate(outputs):
             loss_func = nn.CrossEntropyLoss()
             labelsTensor = pictures['class'].clone().detach()
             losses += loss_func(outputs[key], labelsTensor.long().to(device))
-
         return losses
     except Exception as e:
         logging.error(f"An error occurred while calculating the criterion: {e}")
-    
 
 def training(model, device, lr_rate, epochs, train_loader):
     """
@@ -146,19 +140,15 @@ def training(model, device, lr_rate, epochs, train_loader):
         num_epochs = epochs
         losses = []
         checkpoint_losses = []
-
         optimizer = torch.optim.Adam(model.parameters(), lr=lr_rate)
         n_total_steps = len(train_loader)
 
         for epoch in range(num_epochs):
             for i, pictures in enumerate(train_loader):
                 images = pictures['image'].to(device)
-
                 output = model(images)
-
                 loss = criterion(output, pictures)
                 losses.append(loss.item())
-
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
@@ -167,7 +157,7 @@ def training(model, device, lr_rate, epochs, train_loader):
                     checkpoint_loss = torch.tensor(losses).mean().item()
                     checkpoint_losses.append(checkpoint_loss)
                     print(f'Epoch [{epoch + 1}/{num_epochs}], Step [{i + 1}/{n_total_steps}], Loss: {checkpoint_loss:.4f}')
-
+        
         # Snippet used to save the models for inferring during runtime.
         try:
             torch.save({
@@ -180,7 +170,6 @@ def training(model, device, lr_rate, epochs, train_loader):
         return checkpoint_losses
     except Exception as e:
         logging.error(f"An error occurred during training: {e}")
-            
 
 # Call the method to train the model
 try:
@@ -200,7 +189,6 @@ def validation(model, dataloader):
         with torch.no_grad():
             n_correct = 0
             n_samples = 0
-
             for pictures in dataloader:
                 images = pictures['image'].to(device)
                 outputs = model(images)
@@ -209,10 +197,8 @@ def validation(model, dataloader):
                 for i, out in enumerate(outputs):
                     _, predicted = torch.max(outputs[out], 1)
                     n_correct += (predicted == labels[i]).sum().item()
-
                     if i == 0:
                         n_samples += labels[i].size(0)
-
         acc = 100.0 * n_correct / n_samples
         print(str(acc) + "%")
         return acc
@@ -220,10 +206,13 @@ def validation(model, dataloader):
         logging.error(f"An error occurred during validation: {e}")
 
 # Call the method to validate the model
-validation(model, test_loader)
+try:
+    validation_accuracy = validation(model, val_loader)
+    print(f'Validation Accuracy: {validation_accuracy:.2f}%')
+except Exception as e:
+    logging.error(f"An error occurred during validation: {e}")
 
 # Extra for classification purpose
-
 # Load the trained model
 try:
     model = MultilabelClassifier(3).to(device)
@@ -233,7 +222,7 @@ except Exception as e:
     logging.error(f"An error occurred while loading the trained model: {e}")
     exit(1)
 
-# Create a DataLoader for your validation set
+# Create a DataLoader for the validation set
 # Adjust batch_size and other parameters as needed
 validation_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
 
@@ -243,9 +232,7 @@ try:
     print(f'Validation Accuracy: {validation_accuracy:.2f}%')
 except Exception as e:
     logging.error(f"An error occurred during validation: {e}")
-    
 
-# Call the method to validate the model
 y_true = []
 y_pred = []
 
@@ -254,46 +241,37 @@ with torch.no_grad():
         images = pictures['image'].to(device)
         outputs = model(images)
         labels = pictures['class'].to(device)
-
         for i, out in enumerate(outputs):
             _, predicted = torch.max(outputs[out], 1)
             y_true.extend(labels.cpu().numpy())
             y_pred.extend(predicted.cpu().numpy())
 
-# 2. Precision, Recall, and F1-Score
 from sklearn.metrics import classification_report
-report=classification_report(y_true, y_pred, target_names=['stress', 'introvert', 'extrovert'])
+report = classification_report(y_true, y_pred, target_names=['stress', 'introvert', 'extrovert'])
 print("Classification Report:")
 print(report)
 
-# 3. Visualizing Predictions
+# Visualizing Predictions
 import matplotlib.pyplot as plt
 import random
 
 def visualize_predictions(model, dataloader, num_examples=5):
     model.eval()
-
     for _ in range(num_examples):
         pictures = next(iter(dataloader))
         images = pictures['image'].to(device)
         labels = pictures['class'].numpy()
-
         with torch.no_grad():
             outputs = model(images)
-
         _, predicted = torch.max(outputs['class'], 1)
         predicted = predicted.cpu().numpy()[0]
-
-        # Visualize the image
         plt.imshow(np.transpose(images[0].cpu().numpy(), (1, 2, 0)))
         plt.title(f'Actual: {class_dict[labels[0]]}, Predicted: {class_dict[predicted]}')
         plt.show()
 
-# Visualize predictions for a few examples
 print("Visualizing Predictions:")
 visualize_predictions(model, validation_loader)
 
-# 1. Confusion Matrix
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 import matplotlib.pyplot as plt
 
@@ -302,4 +280,3 @@ disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['stress', 'in
 print("Confusion Matrix:")
 disp.plot()
 plt.show()
-
