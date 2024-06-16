@@ -55,49 +55,9 @@ def draw_person():
 def draw_tree():
     return render_template('draw-tree.html')
 
-# @app.route('/upload.html', methods=['GET', 'POST'])
-# def upload():
-#     if request.method == 'POST':
-#         if not request.files:
-#             return render_template('upload.html')
-#         files = list(request.files)
-#         print(files)
-#         print(request.files)
-#         if files[0] == '':
-#             return render_template('upload.html')
-#         house = request.files['house']
-#         path = os.path.join(app.config['UPLOAD_FOLDER'], house.filename)
-#         house.save(path)
-#         tree = request.files['tree']
-#         path = os.path.join(app.config['UPLOAD_FOLDER'], tree.filename)
-#         tree.save(path)
-#         person = request.files['person']
-#         path = os.path.join(app.config['UPLOAD_FOLDER'], person.filename)
-#         person.save(path)
-#         return redirect(url_for('result_house'))
-#     return render_template('upload.html')
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
-
-# @app.route('/upload.html', methods=['GET', 'POST'])
-# def upload():
-#     if request.method == 'POST':
-#         # Mapping between input names and fixed filenames
-#         file_names = {
-#             'house': 'predictHouse.png',
-#             'tree': 'predictTree.png',
-#             'person': 'predictPerson.png'
-#         }
-#         for input_name, predict_filename in file_names.items():
-#             file = request.files.get(input_name)
-#             if file and allowed_file(file.filename):
-#                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], predict_filename)
-#                 file.save(file_path)
-        
-#         return redirect(url_for('result_house'))  # Redirect to the result page after upload
-#     return render_template('upload.html')
 
 @app.route('/upload.html', methods=['GET', 'POST'])
 def upload():
