@@ -80,8 +80,8 @@ train_set, val_set, test_set = torch.utils.data.random_split(treedata, [train_le
 # Shuffle and load the labeled images in batches of 4 for training.
 train_loader = DataLoader(train_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
 # Load the labeled images in batches of 4 for validation after training the model.
-val_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
-test_loader = DataLoader(test_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
+val_loader = DataLoader(val_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
+test_loader = DataLoader(test_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
 
 
 class MultilabelClassifier(nn.Module):

@@ -76,8 +76,8 @@ train_set, val_set, test_set = torch.utils.data.random_split(housedata, [train_l
 
 # Create data loaders
 train_loader = DataLoader(train_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
-val_loader = DataLoader(val_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
-test_loader = DataLoader(test_set, batch_size=4, shuffle=False, num_workers=0, drop_last=True)
+val_loader = DataLoader(val_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
+test_loader = DataLoader(test_set, batch_size=4, shuffle=True, num_workers=0, drop_last=True)
 
 class MultilabelClassifier(nn.Module):
     """
